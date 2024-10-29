@@ -1,0 +1,72 @@
+version: '3.8'
+
+services:
+  bet-maker:
+    build: .
+    ports:
+      - "8001:8001"
+    depends_on:
+      - postgres
+      - redis
+      - line-provider
+    environment:
+      - APP_NAME=Bet Maker Service
+      - DEBUG=true
+      - DATABASE_URL=postgresql+asyncpg://betmaker:betmaker@postgres:5432/betmaker
+      - REDIS_URL=redis://redis:6379
+      - LINE_PROVIDER_URL=http://line-provider:8000
+      - LINE_PROVIDER_TIMEOUT=5
+      - MIN_BET_AMOUNT=1.0
+      - MAX_BET_AMOUNT=100000.0
+    networks:
+      - betting-network
+    volumes:
+      - .:/app
+
+  postgres:
+    image: postgres:13
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_DB=betmaker
+      - POSTGRES_USER=betmaker
+      - POSTGRES_PASSWORD=betmaker
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - betting-network
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U betmaker" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:6
+    command: redis-server --port 6379
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - betting-network
+    healthcheck:
+      test: [ "CMD", "redis-cli", "-p", "6378", "ping" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  line-provider:
+    image: line-provider:latest  # Предполагается, что у вас есть этот образ
+    ports:
+      - "8000:8000"
+    networks:
+      - betting-network
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  betting-network:
+    driver: bridge

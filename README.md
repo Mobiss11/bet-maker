@@ -93,10 +93,10 @@ docker-compose down
 
 ```env
 APP_NAME=Bet Maker Service
-DEBUG=True
-DATABASE_URL=postgresql+asyncpg://betmaker:betmaker@postgres:5432/betmaker
-REDIS_URL=redis://redis:6378
-LINE_PROVIDER_URL=http://line-provider:8000
+DEBUG=true
+DATABASE_URL=postgresql+asyncpg://betmaker:betmaker@127.0.0.1:5432/betmaker
+REDIS_URL=redis://127.0.0.1:6379
+LINE_PROVIDER_URL=http://127.0.0.1:8000
 LINE_PROVIDER_TIMEOUT=5
 MIN_BET_AMOUNT=1.0
 MAX_BET_AMOUNT=100000.0

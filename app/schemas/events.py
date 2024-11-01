@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import List
 
 from pydantic import BaseModel
 
@@ -7,7 +7,7 @@ from app.schemas.responses import DataResponse
 
 
 class EventsList(BaseModel):
-    events: Dict[str, Event]
+    events: List[Event]
 
 
 class EventsListResponse(DataResponse[EventsList]):

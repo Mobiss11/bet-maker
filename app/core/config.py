@@ -6,14 +6,14 @@ class Settings(BaseSettings):
     DEBUG: bool = False
 
     # База данных
-    DATABASE_URL: str = "postgresql+asyncpg://admin:admin@postgres:5432/bets"
+    DATABASE_URL: str = "postgresql+asyncpg://betmaker:betmaker@127.0.0.1:5432/betmaker"
 
     # Redis
-    REDIS_URL: str = "redis://redis:6379/0"
+    REDIS_URL: str = "redis://127.0.0.1:6379/0"
     EVENT_CACHE_TTL: int = 30  # Время кеширования событий в секундах
 
     # Line Provider
-    LINE_PROVIDER_URL: str = "http://localhost:8000"
+    LINE_PROVIDER_URL: str = "http://127.0.0.1:8000"
     LINE_PROVIDER_TIMEOUT: int = 5  # Таймаут для запросов к line-provider
 
     # Настройки приложения

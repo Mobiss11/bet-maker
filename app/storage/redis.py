@@ -1,5 +1,5 @@
 import json
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 
 from redis import asyncio as aioredis
 
@@ -25,22 +25,22 @@ class RedisStorage:
         """Получение события из кэша"""
         key = f"{self.EVENT_PREFIX}{event_id}"
         data = await self.redis.get(key)
+        print(data)
         if data:
             return Event.model_validate_json(data)
         return None
 
-    async def cache_events_list(self, events: Dict[str, Event]) -> None:
+    async def cache_events_list(self, events: List[dict]) -> None:
         """Кэширование списка событий"""
         await self.redis.set(
             "events_list",
-            json.dumps({k: v.model_dump() for k, v in events.items()}),
+            json.dumps(events),
             ex=settings.EVENT_CACHE_TTL
         )
 
-    async def get_cached_events_list(self) -> Optional[Dict[str, Event]]:
+    async def get_cached_events_list(self) -> Optional[List[dict]]:
         """Получение списка событий из кэша"""
         data = await self.redis.get("events_list")
         if data:
-            events_dict = json.loads(data)
-            return {k: Event(**v) for k, v in events_dict.items()}
+            return json.loads(data)
         return None

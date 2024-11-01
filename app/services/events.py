@@ -1,4 +1,4 @@
-from typing import Dict, Optional
+from typing import List, Optional
 
 import httpx
 
@@ -13,14 +13,13 @@ class EventService:
         self.storage = storage
         self.line_provider_url = settings.LINE_PROVIDER_URL
 
-    async def get_events(self) -> Dict[str, Event]:
+    async def get_events(self) -> List[Event]:
         """Получение списка доступных событий"""
         # Пробуем получить из кэша
-        cached_events = await self.storage.get_cached_events_list()
-        if cached_events:
-            return cached_events
+        # cached_events = await self.storage.get_cached_events_list()
+        # if cached_events:
+        #     return [Event(**event) for event in cached_events]
 
-        # Если нет в кэше, получаем от line provider
         try:
             async with httpx.AsyncClient() as client:
                 response = await client.get(
@@ -28,13 +27,15 @@ class EventService:
                     timeout=settings.LINE_PROVIDER_TIMEOUT
                 )
                 response.raise_for_status()
-                events = {
-                    event_id: Event(**event_data)
-                    for event_id, event_data in response.json()["data"]["events"].items()
-                }
 
-                # Кэшируем результат
-                await self.storage.cache_events_list(events)
+                events = []
+                for event in response.json()["data"]["events"]:
+                    events.append(Event(**event))
+
+
+                # for event in events:
+                #     await self.storage.cache_event(event)
+                # await self.storage.cache_events_list([event.dict() for event in events])
                 return events
         except Exception as e:
             raise LineProviderError(str(e))
@@ -42,9 +43,9 @@ class EventService:
     async def get_event(self, event_id: str) -> Optional[Event]:
         """Получение информации о конкретном событии"""
         # Пробуем получить из кэша
-        cached_event = await self.storage.get_cached_event(event_id)
-        if cached_event:
-            return cached_event
+        # cached_event = await self.storage.get_cached_event(event_id)
+        # if cached_event:
+        #     return cached_event
 
         # Если нет в кэше, получаем от line provider
         try:
